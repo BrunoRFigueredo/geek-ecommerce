@@ -1,10 +1,14 @@
 package br.senac.devweb.ecommerceapiproduct.categoria;
 
+import com.querydsl.core.types.Predicate;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.UUID;
+import java.util.List;
 
-public interface CategoriaRepository extends CrudRepository<Categoria, UUID>,
+public interface CategoriaRepository extends CrudRepository<Categoria, Long>,
         QuerydslPredicateExecutor<Categoria> {
+
+    List<Categoria> findAll(Predicate filter);
+
 }

@@ -1,12 +1,12 @@
 package br.senac.devweb.ecommerceapiproduct.categoria;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/categoria")
@@ -17,10 +17,29 @@ public class CategoriaController {
 
     @PostMapping
     @RequestMapping("/")
-    public ResponseEntity<CategoriaRepresentation.Detail> createCategoria(@RequestBody CategoriaRepresentation.CreateCategoria  createCategoria){
+    public ResponseEntity<CategoriaRepresentation.Detail> createCategoria(@RequestBody CategoriaRepresentation.CreateCategoria createCategoria){
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(CategoriaRepresentation
                         .Detail.from(this.categoriaService.salvar(createCategoria)));
     }
+
+
+    @GetMapping
+    @RequestMapping("todos")
+    public ResponseEntity<List<CategoriaRepresentation.Lista>> getAll(){
+        BooleanExpression filter = QCategoria.categoria.status.eq(Categoria.Status.ATIVO);
+        return  ResponseEntity.ok(CategoriaRepresentation.Lista.from(this.categoriaService.getAllCategoria(filter)));
+    }
+
+    @DeleteMapping
+    @RequestMapping("/{id}")
+    public ResponseEntity deleteCategoria(@PathVariable("id") Long id){
+        this.categoriaService.deleteCategoria(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+
+    }
+
+
 }

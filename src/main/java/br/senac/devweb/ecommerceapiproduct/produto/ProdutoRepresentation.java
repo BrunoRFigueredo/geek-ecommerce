@@ -90,11 +90,19 @@ public interface ProdutoRepresentation {
     class Lista {
         private Long id;
         private String nome;
+        private String descricao;
+        private Double valor;
+        private Produto.UnidadeMedida unidadeMedida;
+        private Double qtde;
 
         private static Lista from(Produto produto) {
             return Lista.builder()
                     .id(produto.getId())
                     .nome(produto.getNome())
+                    .descricao(produto.getDescricao())
+                    .valor(produto.getValor())
+                    .unidadeMedida(produto.getUnidadeMedida())
+                    .qtde(produto.getQtde())
                     .build();
         }
 

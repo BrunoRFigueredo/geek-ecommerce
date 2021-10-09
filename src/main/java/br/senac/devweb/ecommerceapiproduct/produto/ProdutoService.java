@@ -6,6 +6,8 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,8 +53,8 @@ public class ProdutoService {
         return this.produtoRepository.save(produtoAtualizado);
     }
 
-    public List<Produto> getAllProduto(Predicate filter) {
-        return this.produtoRepository.findAll(filter);
+    public Page<Produto> getAllProduto(Predicate predicate, Pageable page) {
+        return this.produtoRepository.findAll(predicate,page);
     }
 
     public Produto getProduto(Long id) {

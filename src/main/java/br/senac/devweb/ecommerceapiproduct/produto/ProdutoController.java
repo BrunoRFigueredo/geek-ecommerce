@@ -2,14 +2,20 @@ package br.senac.devweb.ecommerceapiproduct.produto;
 
 import br.senac.devweb.ecommerceapiproduct.categoria.Categoria;
 import br.senac.devweb.ecommerceapiproduct.categoria.CategoriaService;
+import br.senac.devweb.ecommerceapiproduct.util.Paginacao;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 
 @RestController
@@ -25,17 +31,31 @@ public class ProdutoController {
         Categoria categoria = this.categoriaService.getCategoria(createOrUpdate.getCategoria());
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ProdutoRepresentation.Detail.from(this.produtoService.salvar(createOrUpdate,categoria)));
+                .body(ProdutoRepresentation.Detail.from(this.produtoService.salvar(createOrUpdate, categoria)));
     }
 
 
     @GetMapping
-    public ResponseEntity<List<ProdutoRepresentation.Lista>> getAllProduto() {
+    public ResponseEntity<Paginacao> getAllProduto(
+            @RequestParam(name = "paginaSelecionada", defaultValue = "0") Integer paginaSelecionada,
+            @RequestParam(name = "tamanhoPagina", defaultValue = "20") Integer tamanhoPagina,
+            @QuerydslPredicate(root = Produto.class) Predicate filtro
+    ) {
 
-        BooleanExpression filter = QProduto.produto.status.eq(Produto.Status.ATIVO);
+        Pageable pageable = PageRequest.of(paginaSelecionada, tamanhoPagina);
 
-        return ResponseEntity.ok(ProdutoRepresentation.Lista
-                .from(this.produtoService.getAllProduto(filter)));
+        BooleanExpression filter = Objects.isNull(filtro) ? QProduto.produto.status.eq(Produto.Status.ATIVO) :
+                QProduto.produto.status.eq(Produto.Status.ATIVO)
+                        .and(filtro);
+
+        List<ProdutoRepresentation.Lista> listaProduto = ProdutoRepresentation.Lista
+                .from(this.produtoService.getAllProduto(filter,pageable).getContent());
+
+        return ResponseEntity.ok(Paginacao.builder()
+                .tamanhoPagina(tamanhoPagina)
+                .paginaSelecionada(paginaSelecionada)
+                .conteudo(listaProduto)
+                .build());
     }
 
     @GetMapping("/{id}")
